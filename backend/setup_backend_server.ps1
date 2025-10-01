@@ -29,8 +29,8 @@ if (-not (Test-Command docker-compose)) {
     exit 1
 }
 
-Write-Host "✓ Docker is installed" -ForegroundColor Green
-Write-Host "✓ Docker Compose is installed" -ForegroundColor Green
+Write-Host "[OK] Docker is installed" -ForegroundColor Green
+Write-Host "[OK] Docker Compose is installed" -ForegroundColor Green
 
 # Step 2: Check if Docker is running
 Write-Host ""
@@ -43,7 +43,7 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Host "✓ Docker is running" -ForegroundColor Green
+Write-Host "[OK] Docker is running" -ForegroundColor Green
 
 # Step 3: Create .env file if it doesn't exist
 Write-Host ""
@@ -73,12 +73,12 @@ POSTGRES_PASSWORD=infosysyrab
 "@
     
     Set-Content -Path ".env" -Value $envContent
-    Write-Host "✓ Created .env file with auto-generated SECRET_KEY" -ForegroundColor Green
+    Write-Host "[OK] Created .env file with auto-generated SECRET_KEY" -ForegroundColor Green
     Write-Host ""
     Write-Host "IMPORTANT: Please review .env file and update passwords if needed!" -ForegroundColor Yellow
     Write-Host "Default password: infosysyrab" -ForegroundColor Yellow
 } else {
-    Write-Host "✓ .env file already exists" -ForegroundColor Green
+    Write-Host "[OK] .env file already exists" -ForegroundColor Green
 }
 
 # Step 4: Create docker-compose.yml for backend server
@@ -147,14 +147,14 @@ networks:
 "@
 
 Set-Content -Path "docker-compose.backend.yml" -Value $dockerComposeContent
-Write-Host "✓ Created docker-compose.backend.yml" -ForegroundColor Green
+Write-Host "[OK] Created docker-compose.backend.yml" -ForegroundColor Green
 
 # Step 5: Stop and remove existing containers (if any)
 Write-Host ""
 Write-Host "[5/7] Cleaning up existing containers..." -ForegroundColor Yellow
 
 docker-compose -f docker-compose.backend.yml down -v 2>$null
-Write-Host "✓ Cleaned up existing containers" -ForegroundColor Green
+Write-Host "[OK] Cleaned up existing containers" -ForegroundColor Green
 
 # Step 6: Build and start containers
 Write-Host ""
@@ -168,7 +168,7 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-Write-Host "✓ Containers started successfully" -ForegroundColor Green
+Write-Host "[OK] Containers started successfully" -ForegroundColor Green
 
 # Step 7: Wait for services to be healthy and show status
 Write-Host ""
@@ -204,11 +204,11 @@ Write-Host "=====================================" -ForegroundColor Cyan
 Write-Host ""
 
 if ($backendHealthy) {
-    Write-Host "✓ Backend API is running at: http://localhost:8000" -ForegroundColor Green
-    Write-Host "✓ API Documentation: http://localhost:8000/docs" -ForegroundColor Green
-    Write-Host "✓ Database is running on port 5432" -ForegroundColor Green
+    Write-Host "[OK] Backend API is running at: http://localhost:8000" -ForegroundColor Green
+    Write-Host "[OK] API Documentation: http://localhost:8000/docs" -ForegroundColor Green
+    Write-Host "[OK] Database is running on port 5432" -ForegroundColor Green
 } else {
-    Write-Host "⚠ Backend is starting but not yet responding" -ForegroundColor Yellow
+    Write-Host "[WARNING] Backend is starting but not yet responding" -ForegroundColor Yellow
     Write-Host "  Please wait a few more seconds and check: http://localhost:8000" -ForegroundColor Yellow
 }
 
