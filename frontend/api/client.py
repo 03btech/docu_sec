@@ -1,8 +1,24 @@
 import requests
 from typing import Optional, Dict, Any
+import configparser
+import os
 
 class APIClient:
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: Optional[str] = None):
+        # Try to read from config file first
+        if base_url is None:
+            config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.ini')
+            if os.path.exists(config_path):
+                config = configparser.ConfigParser()
+                config.read(config_path)
+                base_url = config.get('API', 'base_url', fallback='http://localhost:8000')
+            else:
+                # Fallback to localhost if config doesn't exist
+                # This is safer than using a potentially unreachable IP
+                base_url = "http://localhost:8000"
+                print("⚠️  WARNING: config.ini not found. Using http://localhost:8000")
+                print("   Run 'configure_network.ps1' to set up network configuration.")
+        
         self.base_url = base_url
         self.session = requests.Session()
 

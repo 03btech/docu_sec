@@ -229,15 +229,33 @@ Write-Host "Network Access:" -ForegroundColor Cyan
 Write-Host "  To access from other computers on your network:" -ForegroundColor White
 Write-Host "  1. Find this PC's IP address: ipconfig" -ForegroundColor White
 Write-Host "  2. Configure firewall to allow port 8000" -ForegroundColor White
-Write-Host "  3. Update frontend to use: http://<THIS-PC-IP>:8000" -ForegroundColor White
+Write-Host "  3. Update frontend config.ini to use: http://<THIS-PC-IP>:8000" -ForegroundColor White
 Write-Host ""
 
-# Get local IP address
-$localIP = (Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.InterfaceAlias -notlike "*Loopback*" -and $_.IPAddress -notlike "169.254.*"} | Select-Object -First 1).IPAddress
+# Get local IP address (excluding WSL, Hyper-V, and virtual adapters)
+Write-Host "Detecting network IP addresses..." -ForegroundColor Cyan
+$networkIPs = Get-NetIPAddress -AddressFamily IPv4 | Where-Object {
+    $_.InterfaceAlias -notmatch 'Loopback|WSL|vEthernet|Virtual|Hyper-V' -and 
+    $_.IPAddress -notmatch '^169\.254\.' -and
+    $_.IPAddress -notmatch '^127\.'
+}
 
-if ($localIP) {
-    Write-Host "  This PC's IP address: $localIP" -ForegroundColor Yellow
-    Write-Host "  Frontend should connect to: http://${localIP}:8000" -ForegroundColor Yellow
+if ($networkIPs) {
+    Write-Host ""
+    Write-Host "  Available Network IP Addresses:" -ForegroundColor Yellow
+    foreach ($ip in $networkIPs) {
+        Write-Host "  - $($ip.InterfaceAlias): $($ip.IPAddress)" -ForegroundColor Yellow
+    }
+    
+    $primaryIP = $networkIPs[0].IPAddress
+    Write-Host ""
+    Write-Host "  Primary Network IP: $primaryIP" -ForegroundColor Green
+    Write-Host "  Frontend should connect to: http://${primaryIP}:8000" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "  IMPORTANT: Update frontend/config.ini with:" -ForegroundColor Yellow
+    Write-Host "  base_url = http://${primaryIP}:8000" -ForegroundColor White
+} else {
+    Write-Host "  Could not detect network IP. Use 'ipconfig' to find it manually." -ForegroundColor Yellow
 }
 
 Write-Host ""
